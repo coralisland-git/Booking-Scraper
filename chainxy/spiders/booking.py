@@ -69,9 +69,15 @@ class booking(scrapy.Spider):
 
 	def parse(self, response):
 
-		input_start_date = "2018-12-30".split("-")
+		url = raw_input(' Location : ')
 
-		input_end_date = "2019-01-14".split("-")
+		checkin_date = self.getStr(url, 'checkin_year=', '&') + '-' + self.getStr(url, 'checkin_month=', '&') + '-' + self.getStr(url, 'checkin_monthday=', '&')
+
+		checkout_date = self.getStr(url, 'checkout_year=', '&') + '-' + self.getStr(url, 'checkout_month=', '&') + '-' + self.getStr(url, 'checkout_monthday=', '&')
+
+		input_start_date = checkin_date.split("-")
+
+		input_end_date = checkout_date.split("-")
 
 		self.date = '-'.join(input_start_date)
 
@@ -79,11 +85,11 @@ class booking(scrapy.Spider):
 
 		next_date = (datetime.date(int(input_start_date[0]), int(input_start_date[1]), int(input_start_date[2])) + timedelta(days=1)).strftime('%Y-%m-%d').split('-')
 
-		url =  "https://www.booking.com/searchresults.en-gb.html?label=gen173nr-1DCAEoggJCAlhYSDNYBGhpiAEBmAEuwgEKd2luZG93cyAxMMgBDNgBA-gBAZICAXmoAgM&lang=en-gb&\
-				sid=d27e60ca391f3ed6741fad013f129529&sb=1&src=index&src_elem=sb&\
-				error_url=https%3A%2F%2Fwww.booking.com%2Findex.en-gb.html%3Flabel%3Dgen173nr-1DCAEoggJCAlhYSDNYBGhpiAEBmAEuwgEKd2luZG93cyAxMMgBDNgBA-gBAZICAXmoAgM%3Bsid%3Dd27e60ca391f3ed6741fad013f129529%3Bsb_price_type%3Dtotal%26%3B&\
-				ss=Bologna&ssne=Bologna&ssne_untouched=Bologna&dest_id=-111742&dest_type=city&\
-				checkin_monthday="+input_start_date[2]+"&checkin_month="+input_start_date[1]+"&checkin_year="+input_start_date[0]+"&checkout_monthday="+next_date[2]+"&checkout_month="+next_date[1]+"&checkout_year="+next_date[0]+"&no_rooms=1&group_adults=2&group_children=0&b_h4u_keep_filters=&from_sf=1"
+		# url =  "https://www.booking.com/searchresults.en-gb.html?label=gen173nr-1DCAEoggJCAlhYSDNYBGhpiAEBmAEuwgEKd2luZG93cyAxMMgBDNgBA-gBAZICAXmoAgM&lang=en-gb&\
+		# 		sid=d27e60ca391f3ed6741fad013f129529&sb=1&src=index&src_elem=sb&\
+		# 		error_url=https%3A%2F%2Fwww.booking.com%2Findex.en-gb.html%3Flabel%3Dgen173nr-1DCAEoggJCAlhYSDNYBGhpiAEBmAEuwgEKd2luZG93cyAxMMgBDNgBA-gBAZICAXmoAgM%3Bsid%3Dd27e60ca391f3ed6741fad013f129529%3Bsb_price_type%3Dtotal%26%3B&\
+		# 		ss=Bologna&ssne=Bologna&ssne_untouched=Bologna&dest_id=-111742&dest_type=city&\
+		# 		checkin_monthday="+input_start_date[2]+"&checkin_month="+input_start_date[1]+"&checkin_year="+input_start_date[0]+"&checkout_monthday="+next_date[2]+"&checkout_month="+next_date[1]+"&checkout_year="+next_date[0]+"&no_rooms=1&group_adults=2&group_children=0&b_h4u_keep_filters=&from_sf=1"
 
 		yield scrapy.Request(url=url ,callback=self.parse_pagenation)
 
@@ -313,6 +319,20 @@ class booking(scrapy.Spider):
 		return 1
 
 
+	def getStr(self, item, start, end):
+
+		try:
+
+			return self.validate(item.split(start)[1].split(end)[0])
+
+		except Exception as e:
+
+			print e
+			return ''
+
+
+
+
 	def validate(self, item):
 
 		try:
@@ -335,6 +355,3 @@ class booking(scrapy.Spider):
 	            tmp.append(self.validate(item))
 
 	    return tmp
-
-
-"https://www.booking.com/searchresults.it.html?label=gen173nr-1FCAEoggJCAlhYSDNYBGhxiAEBmAEUwgEKd2luZG93cyAxMMgBDNgBAegBAfgBC5ICAXmoAgM;sid=11abd78d4ddd39a2d80e1aa3895aca9c;class_interval=1&dest_id=-111742&dest_type=city&dtdisc=0&from_sf=1&group_adults=2&group_children=0&iata=BLQ&inac=0&index_postcard=0&label_click=undef&no_rooms=1&offset=0&postcard=0&raw_dest_type=city&room1=A%2CA&sb_price_type=total&search_selected=1&src=index&src_elem=sb&ss=Bologna%2C%20Emilia-Romagna%2C%20Italia&ss_all=0&ss_raw=bologna&ssb=empty&sshis=0&"
